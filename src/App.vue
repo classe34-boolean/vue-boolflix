@@ -1,28 +1,101 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header @performSearch="search"/>
+
+    <Main 
+      :movieCards="movies"
+      :serieCards="series"
+      :searching="searchStarted"
+      />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import axios from 'axios';
+
+import Header from './components/Header.vue';
+import Main from './components/Main.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Header,
+    Main
+  },
+  data: function() {
+     return {
+       apiUrl: 'https://api.themoviedb.org/3/search/',
+       apiKey: 'e99307154c6dfb0b4750f6603256716d',
+       movies: [],
+       series: [],
+       allResults: [],
+       searchStarted: false
+     }   
+  },
+  computed: {
+    computedResults: function() {
+      return [...this.movies, ...this.series];
+    }
+  },
+  methods: {
+    getMovies: function(obj) {
+      axios
+        .get(this.apiUrl + 'movie', obj)
+        .then(
+          (res) => {
+            // console.log(res);
+            this.movies = res.data.results;
+            this.allResults = [...this.series, ...this.movies];
+            this.searchStarted = true;
+          }
+        )
+        .catch(
+          (err) => {
+            console.log("Errore", err);
+          }
+        );
+    },
+    getSeries: function(obj) {
+      axios 
+        .get(this.apiUrl + 'tv', obj)
+        .then(
+          (res) => {
+            // console.log(res.data);
+            this.series = res.data.results;
+            this.allResults = [...this.movies, ...this.series];
+            this.searchStarted = true;
+          }
+        )
+        .catch(
+          (err) => {
+            console.log("Errore", err);
+          }
+        );
+    },
+
+    search: function(text) {
+
+      const paramsObj = {
+          params: {
+            api_key: this.apiKey,
+            query: text,
+            language: 'it-IT'
+          }
+        };
+        
+        this.getMovies(paramsObj);
+        this.getSeries(paramsObj);
+    }
   }
 }
 </script>
 
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 </style>
