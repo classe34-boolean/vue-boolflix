@@ -20,7 +20,7 @@
                     :alt="`bandiera ${item.original_language}`"
                     v-if="availableFlags.includes(item.original_language)"
                     >
-                <p v-else>{{ item.original_language }}</p>
+                <h5 v-else>{{ item.original_language }}</h5>
                 <div>
                     <i
                         v-for="n in 5"
